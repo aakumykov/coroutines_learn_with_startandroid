@@ -13,6 +13,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.thread
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -51,7 +52,7 @@ class MainActivity : AppCompatActivity() {
     private fun onLaunch1ButtonClicked() {
         log("-------------------------------------------")
         log("Перед запуском suspend-фнукции")
-        lifecycleScope.launch (Dispatchers.IO) {
+        coroutineScope.launch {
             download("файл://путь-к-файлу.txt")
         }
         log("После запуска suspend-фнукции")
@@ -73,8 +74,10 @@ class MainActivity : AppCompatActivity() {
     class NetworkService(private val cacheDir: File) {
 
         fun download(url: String, callback: Callback) {
-            TimeUnit.SECONDS.sleep(3)
-            callback.onSuccess(File(cacheDir,"some_file.txt"))
+            thread {
+                TimeUnit.SECONDS.sleep(3)
+                callback.onSuccess(File(cacheDir,"some_file.txt"))
+            }
         }
 
         interface Callback {
