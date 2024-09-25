@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.github.aakumykov.coroutines_learn_with_startandroid.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -50,7 +51,7 @@ class MainActivity : AppCompatActivity() {
     private fun onLaunch1ButtonClicked() {
         log("-------------------------------------------")
         log("Перед запуском suspend-фнукции")
-        coroutineScope.launch {
+        lifecycleScope.launch (Dispatchers.IO) {
             download("файл://путь-к-файлу.txt")
         }
         log("После запуска suspend-фнукции")
