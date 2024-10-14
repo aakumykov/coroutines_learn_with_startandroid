@@ -38,6 +38,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.launchButton1.setOnClickListener { onLaunch1ButtonClicked() }
+
+        onLaunch1ButtonClicked()
     }
 
     override fun onDestroy() {
@@ -46,7 +48,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun log(text: String) {
-        Log.d(TAG, "[${Thread.currentThread().let { "${it.name}{${hashCode()}}" }}] $text")
+        val thread = Thread.currentThread()
+        val threadName = thread.name
+        val threadHashCode = thread.hashCode()
+        Log.d(TAG, "[$threadName{$threadHashCode}] $text")
     }
 
     private fun onLaunch1ButtonClicked() {
