@@ -16,4 +16,15 @@
         app:icon="@drawable/baseline_rocket_launch_24"
         app:iconGravity="textStart"
         />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/cancelButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Отменить"
+        app:icon="@drawable/outline_cancel_24"
+        android:backgroundTint="#D32F2F"
+        app:iconGravity="textStart"
+        />
+
 </LinearLayout>

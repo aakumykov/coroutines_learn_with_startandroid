@@ -6,10 +6,12 @@ import android.util.TimeUtils
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.github.aakumykov.coroutines_learn_with_startandroid.databinding.ActivityMainBinding
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -30,6 +32,8 @@ class MainActivity : AppCompatActivity() {
 
     private val coroutineScope: CoroutineScope by lazy { CoroutineScope(Job()) }
 
+    private var currentJob: Job? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,14 +41,55 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.launchButton1.setOnClickListener { onLaunch1ButtonClicked() }
+        binding.launchButton1.setOnClickListener { onLaunch2ButtonClicked() }
+        binding.cancelButton.setOnClickListener { onCancelButtonClicked() }
+    }
 
-        onLaunch1ButtonClicked()
+    private fun onLaunch2ButtonClicked() {
+        log("--------------- onLaunch2ButtonClicked() ---------------")
+        log("перед coroutineScope.launch")
+        currentJob = coroutineScope.launch {
+            repeat(5) { i ->
+                if (!isActive) {
+                    log("Корутина стала неактивна")
+                    return@repeat
+                }
+                else {
+                    log("Ожидание $i ...")
+                    TimeUnit.SECONDS.sleep(1)
+                }
+            }
+            log("Ожидание завершено")
+        }
+        log("после coroutineScope.launch")
+    }
+
+    private fun onLaunch1ButtonClicked() {
+        log("-------------------------------------------")
+        log("Перед запуском suspend-фнукции")
+        currentJob = coroutineScope.launch {
+            try {
+                download("файл://путь-к-файлу.txt")
+            } catch (e: CancellationException) {
+                log("Корутина отменена: ${e.message}")
+            }
+        }
+        log("После запуска suspend-фнукции")
+    }
+
+    private fun onCancelButtonClicked() {
+        log("onCancelButtonClicked()")
+        currentJob?.also {
+            it.cancel(CancellationException("Отменено пользователем"))
+            currentJob = null
+        } ?: run {
+            log("Нечего отменять")
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        coroutineScope.cancel()
+        coroutineScope.cancel(CancellationException("Scope отменён в onDestroy()"))
     }
 
     private fun log(text: String) {
@@ -52,15 +97,6 @@ class MainActivity : AppCompatActivity() {
         val threadName = thread.name
         val threadHashCode = thread.hashCode()
         Log.d(TAG, "[$threadName{$threadHashCode}] $text")
-    }
-
-    private fun onLaunch1ButtonClicked() {
-        log("-------------------------------------------")
-        log("Перед запуском suspend-фнукции")
-        coroutineScope.launch {
-            download("файл://путь-к-файлу.txt")
-        }
-        log("После запуска suspend-фнукции")
     }
 
     private suspend fun download(url: String): File {
