@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
             log("suspend fun download(), внутри suspendCoroutine, перед networkService.download()")
             networkService.download(url, object: NetworkService.Callback {
                 override fun onSuccess(downloadedFile: File) {
-                    log("suspend fun download(), внутри suspendCoroutine, внутри networkService.download()")
+                    log("suspend fun download(), внутри suspendCoroutine, внутри networkService.Callback()")
                     continuation.resume(downloadedFile)
                 }
             })
