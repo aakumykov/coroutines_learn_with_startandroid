@@ -2,13 +2,10 @@ package com.github.aakumykov.coroutines_learn_with_startandroid
 
 import android.os.Bundle
 import android.util.Log
-import android.util.TimeUtils
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import com.github.aakumykov.coroutines_learn_with_startandroid.databinding.ActivityMainBinding
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.isActive
@@ -30,7 +27,7 @@ class MainActivity : AppCompatActivity() {
 
     private val networkService: NetworkService by lazy { NetworkService(cacheDir) }
 
-    private val coroutineScope: CoroutineScope by lazy { CoroutineScope(Job()) }
+    private lateinit var scope: CoroutineScope
 
     private var currentJob: Job? = null
 
@@ -41,55 +38,141 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.launchButton1.setOnClickListener { onLaunch2ButtonClicked() }
+        binding.runFoldedCoroutinesWithoutJoin.setOnClickListener { runFoldedCoroutinesWithoutJoin() }
+        binding.runFoldedCoroutinesWithJoin.setOnClickListener { runFoldedCoroutinesWithJoin() }
+        binding.runParallelCoroutinesWithoutJoin.setOnClickListener { runParallelCoroutinesWithoutJoin() }
+        binding.runParallelCoroutinesWithImmediateJoin.setOnClickListener { runParallelCoroutinesWithImmediateJoin() }
+        binding.runParallelCoroutinesWithDeferredJoin.setOnClickListener { runParallelCoroutinesWithDeferredJoin() }
         binding.cancelButton.setOnClickListener { onCancelButtonClicked() }
     }
 
-    private fun onLaunch2ButtonClicked() {
-        log("--------------- onLaunch2ButtonClicked() ---------------")
-        log("перед coroutineScope.launch")
-        currentJob = coroutineScope.launch {
-            repeat(5) { i ->
-                if (!isActive) {
-                    log("Корутина стала неактивна")
-                    return@repeat
-                }
-                else {
-                    log("Ожидание $i ...")
-                    TimeUnit.SECONDS.sleep(1)
-                }
+    private fun runFoldedCoroutinesWithoutJoin() {
+        log("---------------- runFoldedCoroutinesWithoutJoin ---------------")
+        scope = CoroutineScope(Job())
+        scope.launch {
+            log("Родительская корутина, запуск")
+            launch {
+                log("Дочерняя корутина, запуск")
+                TimeUnit.SECONDS.sleep(1)
+                log("Дочерняя корутина, завершение")
             }
-            log("Ожидание завершено")
+            log("Родительская корутина, завершение")
         }
-        log("после coroutineScope.launch")
     }
 
-    private fun onLaunch1ButtonClicked() {
-        log("-------------------------------------------")
-        log("Перед запуском suspend-фнукции")
-        currentJob = coroutineScope.launch {
-            try {
-                download("файл://путь-к-файлу.txt")
-            } catch (e: CancellationException) {
-                log("Корутина отменена: ${e.message}")
+    private fun runFoldedCoroutinesWithJoin() {
+        log("---------- runFoldedCoroutinesWithJoin ----------")
+        scope = CoroutineScope(Job())
+
+        log("before outer launch")
+        scope.launch {
+            log("Родительская корутина, запуск")
+            scope.launch {
+                var i=1
+                log("ожидание начато ...")
+                while (i <= 5 && isActive) {
+                    log("жду $i ...")
+                    TimeUnit.SECONDS.sleep(1)
+                    i++
+                }
+                log("... ожидание завершено")
+            }.apply {
+                join()
             }
+            log("Родительская корутина, завершение")
         }
-        log("После запуска suspend-фнукции")
+        log("after outer launch")
     }
+
+    private fun runParallelCoroutinesWithoutJoin() {
+        log("---------- runParallelCoroutinesWithoutJoin ---------")
+        scope = CoroutineScope(Job())
+
+        scope.launch {
+            log("Родительская корутина, запуск")
+
+            scope.launch {
+                log("Корутина-1, запуск")
+                TimeUnit.SECONDS.sleep(2)
+                log("Корутина-1, завершение")
+            }
+
+            scope.launch {
+                log("Корутина-2, запуск")
+                TimeUnit.SECONDS.sleep(1)
+                log("Корутина-2, завершение")
+            }
+
+            log("Родительская корутина, завершение")
+        }
+    }
+
+    private fun runParallelCoroutinesWithImmediateJoin() {
+        log("---------- runParallelCoroutinesWithJoin ---------")
+        scope = CoroutineScope(Job())
+
+        scope.launch {
+            log("Родительская корутина, запуск")
+
+            scope.launch {
+                log("Корутина-1, запуск")
+                TimeUnit.SECONDS.sleep(2)
+                log("Корутина-1, завершение")
+            }.join()
+
+            scope.launch {
+                log("Корутина-2, запуск")
+                TimeUnit.SECONDS.sleep(1)
+                log("Корутина-2, завершение")
+            }.join()
+
+            log("Родительская корутина, завершение")
+        }
+    }
+
+    private fun runParallelCoroutinesWithDeferredJoin() {
+        log("---------- runParallelCoroutinesWithDeferredJoin ---------")
+        scope = CoroutineScope(Job())
+
+        scope.launch {
+            log("Родительская корутина, запуск")
+
+            val job1 = scope.launch {
+                log("Корутина-1, запуск")
+                TimeUnit.SECONDS.sleep(2)
+                log("Корутина-1, завершение")
+            }
+
+            val job2 = scope.launch {
+                log("Корутина-2, запуск")
+                TimeUnit.SECONDS.sleep(1)
+                log("Корутина-2, завершение")
+            }
+
+            job1.join()
+            job2.join()
+
+            log("Родительская корутина, завершение")
+        }
+    }
+
+
+
 
     private fun onCancelButtonClicked() {
         log("onCancelButtonClicked()")
-        currentJob?.also {
-            it.cancel(CancellationException("Отменено пользователем"))
+        /*currentJob?.apply {
+            cancel(CancellationException("Отменено пользователем"))
             currentJob = null
         } ?: run {
-            log("Нечего отменять")
-        }
+            log("Текущая задача не найдена")
+        }*/
+        scope.cancel(CancellationException("Scope отменён пользователем"))
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        coroutineScope.cancel(CancellationException("Scope отменён в onDestroy()"))
+        scope.cancel(CancellationException("Scope отменён в onDestroy()"))
     }
 
     private fun log(text: String) {

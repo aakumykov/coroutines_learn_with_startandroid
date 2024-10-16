@@ -9,13 +9,48 @@
     tools:context=".MainActivity">
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/launchButton1"
+        android:id="@+id/runFoldedCoroutinesWithoutJoin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Запустить объект изучения"
+        android:text="Вложенные корутины без .join()"
         app:icon="@drawable/baseline_rocket_launch_24"
-        app:iconGravity="textStart"
-        />
+        app:iconGravity="textStart" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/runFoldedCoroutinesWithJoin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Вложенные корутины с .join()"
+        app:icon="@drawable/baseline_rocket_launch_24"
+        android:backgroundTint="#4CAF50"
+        app:iconGravity="textStart" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/runParallelCoroutinesWithoutJoin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Параллельные корутины без .join()"
+            app:icon="@drawable/baseline_rocket_launch_24"
+            android:backgroundTint="#2196F3"
+            app:iconGravity="textEnd" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/runParallelCoroutinesWithImmediateJoin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Параллельные корутины с немедленным .join()"
+        app:icon="@drawable/baseline_rocket_launch_24"
+        android:backgroundTint="#FFC107"
+        app:iconGravity="textEnd" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/runParallelCoroutinesWithDeferredJoin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Параллельные корутины с отложенным .join()"
+        app:icon="@drawable/baseline_rocket_launch_24"
+        android:backgroundTint="#00BCD4"
+        app:iconGravity="textEnd" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/cancelButton"
