@@ -8,6 +8,7 @@ import com.github.aakumykov.coroutines_learn_with_startandroid.databinding.Activ
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
@@ -34,7 +35,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var scope: CoroutineScope
 
     private var lazyJob: Job? = null
-    private var asyncJob: Job? = null
+    private var asyncResult: Deferred<Int>? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,40 +59,41 @@ class MainActivity : AppCompatActivity() {
 
     
     private fun createAsyncCoroutine() {
+        log("----------------- createAsyncCoroutine() ----------------")
         prepareScope()
 
         log("Перед созданием deferred-корутины")
-        val deferred = scope.async {
+        asyncResult = scope.async(start = CoroutineStart.LAZY) {
             log("Async-корутина, запуск")
+            TimeUnit.SECONDS.sleep(2)
             val res = Random.nextInt(100)
             log("Async-корутина, завершение и возврат значения")
             return@async res
         }
         log("После созданием deferred-корутины")
-
-
-        log("Перед запуском scope.launch для получения результата из deferred")
-        scope.launch {
-            log("Перед получением результата из deferred")
-            log("Результат: ${deferred.await()}")
-            log("После получением результата из deferred")
-        }
-        log("После запуском scope.launch для получения результата из deferred")
     }
 
     private fun runAsyncCoroutine() {
-        log("runAsyncCoroutine()")
-        asyncJob?.also {
-            log("Результат: ${it.start()}")
+        log("------------- runAsyncCoroutine() -------------")
+        asyncResult?.also { deferred ->
+
+            log("Перед запуском scope.launch для получения результата из deferred")
+            scope.launch {
+                log("Перед получением результата из deferred")
+                log("Результат: ${deferred.await()}")
+                log("После получением результата из deferred")
+            }
+            log("После запуском scope.launch для получения результата из deferred")
+
         } ?: run {
-            showToast("Async-конутина не подготовлена")
+            showError("Async-корутина не подготовлена")
         }
     }
 
 
     private fun createLazyCoroutine() {
         prepareScope()
-        log("-------------- createLazyCoroutine ---------------")
+        log("-------------- createLazyCoroutine() ---------------")
         lazyJob = scope.launch(start = CoroutineStart.LAZY) {
             log("Ленивая корутина, запуск")
             TimeUnit.SECONDS.sleep(1)
@@ -100,8 +102,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun runLazyCoroutine() {
+        log("-------------- runLazyCoroutine() ---------------")
         lazyJob?.start() ?: run {
-            showToast("Корутина не подготовлена")
+            showError("Корутина не подготовлена")
         }
     }
 
@@ -275,5 +278,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun showToast(text: String) {
         Toast.makeText(this,text,Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showError(errorMsg: String) {
+        log(errorMsg)
+        showToast(errorMsg)
     }
 }
