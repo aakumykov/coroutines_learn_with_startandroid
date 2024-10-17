@@ -113,6 +113,16 @@
 
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/parallelWork"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Параллельная работа"
+        app:icon="@drawable/baseline_rocket_launch_24"
+        android:backgroundTint="#3F51B5"
+        app:iconGravity="textEnd" />
+
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/cancelButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

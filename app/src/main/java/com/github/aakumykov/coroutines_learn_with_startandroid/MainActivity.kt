@@ -12,6 +12,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
@@ -53,8 +54,32 @@ class MainActivity : AppCompatActivity() {
         binding.runLazyCoroutine.setOnClickListener { runLazyCoroutine() }
         binding.createAsyncCoroutine.setOnClickListener { createAsyncCoroutine() }
         binding.runAsyncCoroutine.setOnClickListener { runAsyncCoroutine() }
+        binding.parallelWork.setOnClickListener { parallelWork() }
 
         binding.cancelButton.setOnClickListener { onCancelButtonClicked() }
+    }
+
+    private fun parallelWork() {
+        log("---------------- parallelWork() --------------")
+        prepareScope()
+        scope.launch {
+            log("Перед параллельным запуском двух suspend-функций")
+            val res1 = async { getData1() }
+            val res2 = async{ getData2() }
+            log("Результат1: ${res1.await()}, результат2: ${res2.await()}")
+            log("После параллельного запуска двух suspend-функций")
+        }
+    }
+
+
+    private suspend fun getData1(): Int {
+        delay(1000)
+        return Random.nextInt(1,101)
+    }
+
+    private suspend fun getData2(): Int {
+        delay(2000)
+        return Random.nextInt(101,1001)
     }
 
     
@@ -241,7 +266,7 @@ class MainActivity : AppCompatActivity() {
         val thread = Thread.currentThread()
         val threadName = thread.name
         val threadHashCode = thread.hashCode()
-        Log.d(TAG, "[$threadName{$threadHashCode}] $text")
+        Log.d(TAG, "[$threadName {$threadHashCode}] $text")
     }
 
     private suspend fun download(url: String): File {
