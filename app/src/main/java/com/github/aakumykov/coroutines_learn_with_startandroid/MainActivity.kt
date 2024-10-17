@@ -2,10 +2,12 @@ package com.github.aakumykov.coroutines_learn_with_startandroid
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.github.aakumykov.coroutines_learn_with_startandroid.databinding.ActivityMainBinding
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.isActive
@@ -29,7 +31,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var scope: CoroutineScope
 
-    private var currentJob: Job? = null
+    private var lazyJob: Job? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,12 +45,30 @@ class MainActivity : AppCompatActivity() {
         binding.runParallelCoroutinesWithoutJoin.setOnClickListener { runParallelCoroutinesWithoutJoin() }
         binding.runParallelCoroutinesWithImmediateJoin.setOnClickListener { runParallelCoroutinesWithImmediateJoin() }
         binding.runParallelCoroutinesWithDeferredJoin.setOnClickListener { runParallelCoroutinesWithDeferredJoin() }
+        binding.createLazyCoroutine.setOnClickListener { createLazyCoroutine() }
+        binding.startLazyCoroutine.setOnClickListener { startLazyCoroutine() }
+
         binding.cancelButton.setOnClickListener { onCancelButtonClicked() }
+    }
+
+    private fun createLazyCoroutine() {
+        prepareScope()
+        lazyJob = scope.launch(start = CoroutineStart.LAZY) {
+            log("Ленивая корутина, запуск")
+            TimeUnit.SECONDS.sleep(1)
+            log("Ленивая корутина, завершение")
+        }
+    }
+
+    private fun startLazyCoroutine() {
+        lazyJob?.start() ?: run {
+            showToast("Корутина не подготовлена")
+        }
     }
 
     private fun runFoldedCoroutinesWithoutJoin() {
         log("---------------- runFoldedCoroutinesWithoutJoin ---------------")
-        scope = CoroutineScope(Job())
+        prepareScope()
         scope.launch {
             log("Родительская корутина, запуск")
             launch {
@@ -62,7 +82,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun runFoldedCoroutinesWithJoin() {
         log("---------- runFoldedCoroutinesWithJoin ----------")
-        scope = CoroutineScope(Job())
+        prepareScope()
 
         log("before outer launch")
         scope.launch {
@@ -86,7 +106,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun runParallelCoroutinesWithoutJoin() {
         log("---------- runParallelCoroutinesWithoutJoin ---------")
-        scope = CoroutineScope(Job())
+        prepareScope()
 
         scope.launch {
             log("Родительская корутина, запуск")
@@ -109,7 +129,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun runParallelCoroutinesWithImmediateJoin() {
         log("---------- runParallelCoroutinesWithJoin ---------")
-        scope = CoroutineScope(Job())
+        prepareScope()
 
         scope.launch {
             log("Родительская корутина, запуск")
@@ -132,7 +152,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun runParallelCoroutinesWithDeferredJoin() {
         log("---------- runParallelCoroutinesWithDeferredJoin ---------")
-        scope = CoroutineScope(Job())
+        prepareScope()
 
         scope.launch {
             log("Родительская корутина, запуск")
@@ -208,5 +228,13 @@ class MainActivity : AppCompatActivity() {
             fun onSuccess(downloadedFile: File)
 //            fun onError(e: Exception)
         }
+    }
+
+    private fun prepareScope() {
+        scope = CoroutineScope(Job())
+    }
+
+    private fun showToast(text: String) {
+        Toast.makeText(this,text,Toast.LENGTH_SHORT).show()
     }
 }
