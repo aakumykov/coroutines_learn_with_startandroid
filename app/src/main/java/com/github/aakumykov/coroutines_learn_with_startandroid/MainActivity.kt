@@ -45,206 +45,44 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.runFoldedCoroutinesWithoutJoin.setOnClickListener { runFoldedCoroutinesWithoutJoin() }
-        binding.runFoldedCoroutinesWithJoin.setOnClickListener { runFoldedCoroutinesWithJoin() }
-        binding.runParallelCoroutinesWithoutJoin.setOnClickListener { runParallelCoroutinesWithoutJoin() }
-        binding.runParallelCoroutinesWithImmediateJoin.setOnClickListener { runParallelCoroutinesWithImmediateJoin() }
-        binding.runParallelCoroutinesWithDeferredJoin.setOnClickListener { runParallelCoroutinesWithDeferredJoin() }
-        binding.createLazyCoroutine.setOnClickListener { createLazyCoroutine() }
-        binding.runLazyCoroutine.setOnClickListener { runLazyCoroutine() }
-        binding.createAsyncCoroutine.setOnClickListener { createAsyncCoroutine() }
-        binding.runAsyncCoroutine.setOnClickListener { runAsyncCoroutine() }
-        binding.parallelWork.setOnClickListener { parallelWork() }
+        binding.twoLaunchesWithoutJoin.setOnClickListener { twoLaunchesWithoutJoin() }
+//        binding.runFoldedCoroutinesWithJoin.setOnClickListener { runFoldedCoroutinesWithJoin() }
+//        binding.runParallelCoroutinesWithoutJoin.setOnClickListener { runParallelCoroutinesWithoutJoin() }
+//        binding.runParallelCoroutinesWithImmediateJoin.setOnClickListener { runParallelCoroutinesWithImmediateJoin() }
+//        binding.runParallelCoroutinesWithDeferredJoin.setOnClickListener { runParallelCoroutinesWithDeferredJoin() }
+//        binding.createLazyCoroutine.setOnClickListener { createLazyCoroutine() }
+//        binding.runLazyCoroutine.setOnClickListener { runLazyCoroutine() }
+//        binding.createAsyncCoroutine.setOnClickListener { createAsyncCoroutine() }
+//        binding.runAsyncCoroutine.setOnClickListener { runAsyncCoroutine() }
+//        binding.parallelWork.setOnClickListener { parallelWork() }
 
         binding.cancelButton.setOnClickListener { onCancelButtonClicked() }
     }
 
-    private fun parallelWork() {
-        log("---------------- parallelWork() --------------")
+
+    private fun twoLaunchesWithoutJoin() {
+        logMethodName("twoLaunchesWithoutJoin")
         prepareScope()
+
+
+        log("Перед запуском 1 launch")
         scope.launch {
-            log("Перед параллельным запуском двух suspend-функций")
-            val res1 = async { getData1() }
-            val res2 = async{ getData2() }
-            log("Результат1: ${res1.await()}, результат2: ${res2.await()}")
-            log("После параллельного запуска двух suspend-функций")
-        }
-    }
-
-
-    private suspend fun getData1(): Int {
-        delay(1000)
-        return Random.nextInt(1,101)
-    }
-
-    private suspend fun getData2(): Int {
-        delay(2000)
-        return Random.nextInt(101,1001)
-    }
-
-    
-    private fun createAsyncCoroutine() {
-        log("----------------- createAsyncCoroutine() ----------------")
-        prepareScope()
-
-        log("Перед созданием deferred-корутины")
-        asyncResult = scope.async(start = CoroutineStart.LAZY) {
-            log("Async-корутина, запуск")
+            log("Внутри 1 launch, перед работой")
             TimeUnit.SECONDS.sleep(2)
-            val res = Random.nextInt(100)
-            log("Async-корутина, завершение и возврат значения")
-            return@async res
+            log("Внутри 1 launch, после работы")
         }
-        log("После созданием deferred-корутины")
-    }
-
-    private fun runAsyncCoroutine() {
-        log("------------- runAsyncCoroutine() -------------")
-        asyncResult?.also { deferred ->
-
-            log("Перед запуском scope.launch для получения результата из deferred")
-            scope.launch {
-                log("Перед получением результата из deferred")
-                log("Результат: ${deferred.await()}")
-                log("После получением результата из deferred")
-            }
-            log("После запуском scope.launch для получения результата из deferred")
-
-        } ?: run {
-            showError("Async-корутина не подготовлена")
-        }
-    }
+        log("После запуска 1 launch")
 
 
-    private fun createLazyCoroutine() {
-        prepareScope()
-        log("-------------- createLazyCoroutine() ---------------")
-        lazyJob = scope.launch(start = CoroutineStart.LAZY) {
-            log("Ленивая корутина, запуск")
-            TimeUnit.SECONDS.sleep(1)
-            log("Ленивая корутина, завершение")
-        }
-    }
-
-    private fun runLazyCoroutine() {
-        log("-------------- runLazyCoroutine() ---------------")
-        lazyJob?.start() ?: run {
-            showError("Корутина не подготовлена")
-        }
-    }
-
-    private fun runFoldedCoroutinesWithoutJoin() {
-        log("---------------- runFoldedCoroutinesWithoutJoin ---------------")
-        prepareScope()
+        log("Перед запуском 2 launch")
         scope.launch {
-            log("Родительская корутина, запуск")
-            launch {
-                log("Дочерняя корутина, запуск")
-                TimeUnit.SECONDS.sleep(1)
-                log("Дочерняя корутина, завершение")
-            }
-            log("Родительская корутина, завершение")
+            log("Внутри 2 launch, перед работой")
+            TimeUnit.SECONDS.sleep(3)
+            log("Внутри 2 launch, после работы")
         }
+        log("После запуска 2 launch")
     }
-
-    private fun runFoldedCoroutinesWithJoin() {
-        log("---------- runFoldedCoroutinesWithJoin ----------")
-        prepareScope()
-
-        log("before outer launch")
-        scope.launch {
-            log("Родительская корутина, запуск")
-            scope.launch {
-                var i=1
-                log("ожидание начато ...")
-                while (i <= 5 && isActive) {
-                    log("жду $i ...")
-                    TimeUnit.SECONDS.sleep(1)
-                    i++
-                }
-                log("... ожидание завершено")
-            }.apply {
-                join()
-            }
-            log("Родительская корутина, завершение")
-        }
-        log("after outer launch")
-    }
-
-    private fun runParallelCoroutinesWithoutJoin() {
-        log("---------- runParallelCoroutinesWithoutJoin ---------")
-        prepareScope()
-
-        scope.launch {
-            log("Родительская корутина, запуск")
-
-            scope.launch {
-                log("Корутина-1, запуск")
-                TimeUnit.SECONDS.sleep(2)
-                log("Корутина-1, завершение")
-            }
-
-            scope.launch {
-                log("Корутина-2, запуск")
-                TimeUnit.SECONDS.sleep(1)
-                log("Корутина-2, завершение")
-            }
-
-            log("Родительская корутина, завершение")
-        }
-    }
-
-    private fun runParallelCoroutinesWithImmediateJoin() {
-        log("---------- runParallelCoroutinesWithJoin ---------")
-        prepareScope()
-
-        scope.launch {
-            log("Родительская корутина, запуск")
-
-            scope.launch {
-                log("Корутина-1, запуск")
-                TimeUnit.SECONDS.sleep(2)
-                log("Корутина-1, завершение")
-            }.join()
-
-            scope.launch {
-                log("Корутина-2, запуск")
-                TimeUnit.SECONDS.sleep(1)
-                log("Корутина-2, завершение")
-            }.join()
-
-            log("Родительская корутина, завершение")
-        }
-    }
-
-    private fun runParallelCoroutinesWithDeferredJoin() {
-        log("---------- runParallelCoroutinesWithDeferredJoin ---------")
-        prepareScope()
-
-        scope.launch {
-            log("Родительская корутина, запуск")
-
-            val job1 = scope.launch {
-                log("Корутина-1, запуск")
-                TimeUnit.SECONDS.sleep(2)
-                log("Корутина-1, завершение")
-            }
-
-            val job2 = scope.launch {
-                log("Корутина-2, запуск")
-                TimeUnit.SECONDS.sleep(1)
-                log("Корутина-2, завершение")
-            }
-
-            job1.join()
-            job2.join()
-
-            log("Родительская корутина, завершение")
-        }
-    }
-
-
-
+    /* Вывод: launch{} без .join() позволяет запускать параллельно независимые задачи */
 
     private fun onCancelButtonClicked() {
         log("onCancelButtonClicked()")
@@ -268,7 +106,6 @@ class MainActivity : AppCompatActivity() {
         val threadHashCode = thread.hashCode()
         Log.d(TAG, "[$threadName {$threadHashCode}] $text")
     }
-
     private suspend fun download(url: String): File {
         log("suspend fun download(), перед запуском suspendCoroutine{}")
         return suspendCoroutine { continuation ->
@@ -308,5 +145,9 @@ class MainActivity : AppCompatActivity() {
     private fun showError(errorMsg: String) {
         log(errorMsg)
         showToast(errorMsg)
+    }
+
+    private fun logMethodName(name: String) {
+        log("---------- ${name}() ---------")
     }
 }

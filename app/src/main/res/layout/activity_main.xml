@@ -9,10 +9,10 @@
     tools:context=".MainActivity">
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/runFoldedCoroutinesWithoutJoin"
+        android:id="@+id/twoLaunchesWithoutJoin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Вложенные корутины без .join()"
+        android:text="launch: две задачи без .join()"
         app:icon="@drawable/baseline_rocket_launch_24"
         app:iconGravity="textStart" />
 
@@ -20,53 +20,59 @@
         android:id="@+id/runFoldedCoroutinesWithJoin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Вложенные корутины с .join()"
-        app:icon="@drawable/baseline_rocket_launch_24"
         android:backgroundTint="#4CAF50"
+        android:text="Вложенные корутины с .join()"
+        android:visibility="gone"
+        app:icon="@drawable/baseline_rocket_launch_24"
         app:iconGravity="textStart" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/runParallelCoroutinesWithoutJoin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Параллельные корутины без .join()"
-            app:icon="@drawable/baseline_rocket_launch_24"
-            android:backgroundTint="#2196F3"
-            app:iconGravity="textEnd" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/runParallelCoroutinesWithoutJoin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#2196F3"
+        android:text="Параллельные корутины без .join()"
+        android:visibility="gone"
+        app:icon="@drawable/baseline_rocket_launch_24"
+        app:iconGravity="textEnd" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/runParallelCoroutinesWithImmediateJoin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Параллельные корутины с немедленным .join()"
-        app:icon="@drawable/baseline_rocket_launch_24"
         android:backgroundTint="#FFC107"
+        android:text="Параллельные корутины с немедленным .join()"
         android:textColor="#444"
-        app:iconTint="#444"
-        app:iconGravity="textEnd" />
+        android:visibility="gone"
+        app:icon="@drawable/baseline_rocket_launch_24"
+        app:iconGravity="textEnd"
+        app:iconTint="#444" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/runParallelCoroutinesWithDeferredJoin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Параллельные корутины с отложенным .join()"
-        app:icon="@drawable/baseline_rocket_launch_24"
         android:backgroundTint="#00BCD4"
+        android:text="Параллельные корутины с отложенным .join()"
+        android:visibility="gone"
+        app:icon="@drawable/baseline_rocket_launch_24"
         app:iconGravity="textEnd" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/createLazyCoroutine"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Создать ленивую"
-            app:icon="@drawable/baseline_create_24"
             android:backgroundTint="#B040C3"
+            android:text="Создать ленивую"
+            android:visibility="gone"
+            app:icon="@drawable/baseline_create_24"
             app:iconGravity="textStart" />
 
         <com.google.android.material.button.MaterialButton
@@ -74,12 +80,13 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Запустить"
-            app:icon="@drawable/baseline_rocket_launch_24"
             android:backgroundTint="#E2FA33"
+            android:text="Запустить"
             android:textColor="#444"
-            app:iconTint="#444"
-            app:iconGravity="textEnd" />
+            android:visibility="gone"
+            app:icon="@drawable/baseline_rocket_launch_24"
+            app:iconGravity="textEnd"
+            app:iconTint="#444" />
 
     </LinearLayout>
 
@@ -87,16 +94,18 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/createAsyncCoroutine"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Создать async"
-            app:icon="@drawable/baseline_create_24"
             android:backgroundTint="#009688"
+            android:text="Создать async"
+            android:visibility="gone"
+            app:icon="@drawable/baseline_create_24"
             app:iconGravity="textStart" />
 
         <com.google.android.material.button.MaterialButton
@@ -104,9 +113,10 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Запустить"
-            app:icon="@drawable/baseline_rocket_launch_24"
             android:backgroundTint="#F88D3E"
+            android:text="Запустить"
+            android:visibility="gone"
+            app:icon="@drawable/baseline_rocket_launch_24"
             app:iconGravity="textEnd" />
 
     </LinearLayout>
@@ -116,9 +126,10 @@
         android:id="@+id/parallelWork"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Параллельная работа"
-        app:icon="@drawable/baseline_rocket_launch_24"
         android:backgroundTint="#3F51B5"
+        android:text="Параллельная работа"
+        android:visibility="gone"
+        app:icon="@drawable/baseline_rocket_launch_24"
         app:iconGravity="textEnd" />
 
 
@@ -126,10 +137,10 @@
         android:id="@+id/cancelButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Отменить"
-        app:icon="@drawable/outline_cancel_24"
         android:backgroundTint="#D32F2F"
-        app:iconGravity="textStart"
-        />
+        android:text="Отменить"
+        android:visibility="gone"
+        app:icon="@drawable/outline_cancel_24"
+        app:iconGravity="textStart" />
 
 </LinearLayout>
