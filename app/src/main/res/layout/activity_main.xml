@@ -26,6 +26,17 @@
         app:iconGravity="textStart" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/twoLaunchesWithAsync"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#FFC107"
+        android:text="async: join() + CoroutineStart"
+        android:textColor="#444"
+        app:icon="@drawable/baseline_rocket_launch_24"
+        app:iconGravity="textEnd"
+        app:iconTint="#444" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/runParallelCoroutinesWithoutJoin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -35,17 +46,7 @@
         app:icon="@drawable/baseline_rocket_launch_24"
         app:iconGravity="textEnd" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/runParallelCoroutinesWithImmediateJoin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#FFC107"
-        android:text="Параллельные корутины с немедленным .join()"
-        android:textColor="#444"
-        android:visibility="gone"
-        app:icon="@drawable/baseline_rocket_launch_24"
-        app:iconGravity="textEnd"
-        app:iconTint="#444" />
+
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/runParallelCoroutinesWithDeferredJoin"

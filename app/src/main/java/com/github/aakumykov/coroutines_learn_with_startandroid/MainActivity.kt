@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -44,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.twoLaunchesWithoutJoin.setOnClickListener { twoLaunchesWithoutJoin() }
         binding.twoLaunchesWithJoin.setOnClickListener { twoLaunchesWithJoin() }
-//        binding.runParallelCoroutinesWithoutJoin.setOnClickListener { runParallelCoroutinesWithoutJoin() }
+        binding.twoLaunchesWithAsync.setOnClickListener { twoLaunchesWithAsync() }
 //        binding.runParallelCoroutinesWithImmediateJoin.setOnClickListener { runParallelCoroutinesWithImmediateJoin() }
 //        binding.runParallelCoroutinesWithDeferredJoin.setOnClickListener { runParallelCoroutinesWithDeferredJoin() }
 //        binding.createLazyCoroutine.setOnClickListener { createLazyCoroutine() }
@@ -130,6 +131,41 @@ class MainActivity : AppCompatActivity() {
     *     +-------------------------+--------------------+
     * |
     */
+
+
+    private fun twoLaunchesWithAsync() {
+        logMethodName("twoLaunchesWithAsync")
+        prepareScope()
+
+        scope.launch {
+
+            log("Перед запуском 1 async")
+            val d1 = scope.async (start = CoroutineStart.LAZY) {
+                TimeUnit.SECONDS.sleep(2)
+                log("@@@ работа async-1")
+                return@async "продукция-1"
+            }
+            log("После запуска 1 async")
+
+
+            log("Перед запуском 2 async")
+            val d2 = scope.async (start = CoroutineStart.LAZY) {
+                TimeUnit.SECONDS.sleep(3)
+                log("@@@ работа async-2")
+                return@async "продукция-2"
+            }
+            log("После запуска 2 async")
+
+            log("Результат 1: ${d1.await()}, Результат 2: ${d2.await()}")
+        }
+    }
+
+    /**
+     * 1) Немедленный .await() + CoroutineStart.DEFAULT = последовательная работа
+     * 2) Немедленный .await() + CoroutineStart.LAZY = последовательная работа
+     * 3) Отложенный .await() + CoroutineStart.DEFAULT = параллельная работа
+     * 4) Отложенный .await() + CoroutineStart.LAZY = последовательная работа
+     */
 
 
     private fun onCancelButtonClicked() {
