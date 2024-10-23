@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.github.aakumykov.coroutines_learn_with_startandroid.databinding.ActivityMainBinding
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -91,36 +92,43 @@ class MainActivity : AppCompatActivity() {
         logMethodName("twoLaunchesWithJoin")
         prepareScope()
 
-        scope.logFromScope("┎---------- scope.launch (старт) ----------┒")
         scope.launch {
 
-            logFromScope("Перед запуском 1 launch")
-            scope.launch {
-                logFromScope("Внутри 1 launch, перед работой")
+            log("Перед запуском 1 launch")
+            val job1 = scope.launch (start = CoroutineStart.LAZY) {
                 TimeUnit.SECONDS.sleep(2)
-                logFromScope("Внутри 1 launch, после работы")
-            }.join()
-            logFromScope("После запуска 1 launch")
+                log("@@@ работа launch-1")
+            }//.join()
+            log("После запуска 1 launch")
 
 
-            logFromScope("Перед запуском 2 launch")
-            scope.launch {
-                logFromScope("Внутри 2 launch, перед работой")
+            log("Перед запуском 2 launch")
+            val job2 = scope.launch (start = CoroutineStart.LAZY) {
                 TimeUnit.SECONDS.sleep(3)
-                logFromScope("Внутри 2 launch, после работы")
-            }.join()
-            logFromScope("После запуска 2 launch")
+                log("@@@ работа launch-2")
+            }//.join()
+            log("После запуска 2 launch")
 
+            job1.join()
+            job2.join()
         }
-        scope.logFromScope("┖---------- scope.launch (финиш) ----------┚")
     }
-    /* Запуск с .join() - последовательное выполнение внутри родительского scope.launch{},
-    * тогда как этот родительский launch отрабатывает и завершается, не дожидаясь завершения
-    * дочерних launch. По сути, дочерние параллельные launch выполняются последовательно в
-    * фоновом потоке...
+    /*
+    * Как .join() и параметр 'start' вызова .launch() влияет на работу параллельных корутин:
+    * 1) CoroutineStart.DEFAULT + немедленный .join() = последовательная работа,
+    * так как корутины создаются сразу и сразу же стартуют через .join(),
+    * который ждёт их выполнения.
+    * 2) CoroutineStart.LAZY + немедленный .join() = последовательная работа:
+    * корутины хоть и создаются лениво, но отправляются на выполнение сразу же.
+    * 3) CoroutineStart.DEFAULT + отложенный .join() = параллельная работа.
+    * 4) CoroutineStart.DEFAULT + отложенный .join() = последовательная работа: корутины
+    * хоть и стартуют одновременно, но рабочее тело их создаётся лениво,
+    * и вторая корутина создаётся-запускается после отработки первой.
     *
-    * Добавил вывод scope(job).isActive (какой это job?). Что-то принципиально не поменялось:
-    * isActive всегда true.
+    *      +-------------------------+---------------------+
+    *     | CoroutineStart.DEFAULT | CoroutineStart.LAZY |
+    *     +-------------------------+--------------------+
+    * |
     */
 
 
