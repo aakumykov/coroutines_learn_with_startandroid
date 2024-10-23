@@ -96,24 +96,43 @@ class MainActivity : AppCompatActivity() {
         scope.launch {
 
             log("Перед запуском 1 launch")
-            val job1 = scope.launch (start = CoroutineStart.LAZY) {
+            val job1 = scope.launch (start = startType()) {
                 TimeUnit.SECONDS.sleep(2)
                 log("@@@ работа launch-1")
-            }//.join()
+            }.let {
+                if (isImmediateStart()) it.join()
+                else it
+            }
             log("После запуска 1 launch")
 
 
             log("Перед запуском 2 launch")
-            val job2 = scope.launch (start = CoroutineStart.LAZY) {
+            val job2 = scope.launch (start = startType()) {
                 TimeUnit.SECONDS.sleep(3)
                 log("@@@ работа launch-2")
-            }//.join()
+            }.also {
+                if (isImmediateStart()) it.join()
+                else it
+            }
             log("После запуска 2 launch")
 
-            job1.join()
-            job2.join()
+            if (isDeferredRun()) {
+                (job1 as Job).join()
+                job2.join()
+            }
         }
     }
+
+    private fun startType(): CoroutineStart {
+        return when (binding.startType.checkedRadioButtonId) {
+            R.id.coroutineStartDefault -> CoroutineStart.DEFAULT
+            else -> CoroutineStart.LAZY
+        }
+    }
+
+    private fun isImmediateStart(): Boolean = binding.startType.checkedRadioButtonId == R.id.coroutineStartDefault
+    private fun isDeferredRun(): Boolean = binding.runType.checkedRadioButtonId == R.id.deferredRun
+
     /*
     * Как .join() и параметр 'start' вызова .launch() влияет на работу параллельных корутин:
     * 1) CoroutineStart.DEFAULT + немедленный .join() = последовательная работа,
