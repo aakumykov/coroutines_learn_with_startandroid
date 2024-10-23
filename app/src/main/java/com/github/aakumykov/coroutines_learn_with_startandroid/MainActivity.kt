@@ -7,12 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.github.aakumykov.coroutines_learn_with_startandroid.databinding.ActivityMainBinding
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
@@ -20,7 +17,6 @@ import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import kotlin.random.Random
 
 
 class MainActivity : AppCompatActivity() {
@@ -84,38 +80,48 @@ class MainActivity : AppCompatActivity() {
     }
     /* Вывод: launch{} без .join() позволяет запускать параллельно независимые задачи */
 
+    private fun CoroutineScope.jobIsActiveToLog(): String = ", job.isActive:${isActive}"
+
+    fun CoroutineScope.logFromScope(text: String) {
+        log("${text}, scope.isActive: ${isActive}")
+    }
+
 
     private fun twoLaunchesWithJoin() {
         logMethodName("twoLaunchesWithJoin")
         prepareScope()
 
-        logParentStart("scope.launch")
+        scope.logFromScope("┎---------- scope.launch (старт) ----------┒")
         scope.launch {
 
-            log("Перед запуском 1 launch")
+            logFromScope("Перед запуском 1 launch")
             scope.launch {
-                log("Внутри 1 launch, перед работой")
+                logFromScope("Внутри 1 launch, перед работой")
                 TimeUnit.SECONDS.sleep(2)
-                log("Внутри 1 launch, после работы")
+                logFromScope("Внутри 1 launch, после работы")
             }.join()
-            log("После запуска 1 launch")
+            logFromScope("После запуска 1 launch")
 
 
-            log("Перед запуском 2 launch")
+            logFromScope("Перед запуском 2 launch")
             scope.launch {
-                log("Внутри 2 launch, перед работой")
+                logFromScope("Внутри 2 launch, перед работой")
                 TimeUnit.SECONDS.sleep(3)
-                log("Внутри 2 launch, после работы")
+                logFromScope("Внутри 2 launch, после работы")
             }.join()
-            log("После запуска 2 launch")
+            logFromScope("После запуска 2 launch")
 
         }
-        logParentEnd("scope.launch")
+        scope.logFromScope("┖---------- scope.launch (финиш) ----------┚")
     }
     /* Запуск с .join() - последовательное выполнение внутри родительского scope.launch{},
     * тогда как этот родительский launch отрабатывает и завершается, не дожидаясь завершения
     * дочерних launch. По сути, дочерние параллельные launch выполняются последовательно в
-    * фоновом потоке... */
+    * фоновом потоке...
+    *
+    * Добавил вывод scope(job).isActive (какой это job?). Что-то принципиально не поменялось:
+    * isActive всегда true.
+    */
 
 
     private fun onCancelButtonClicked() {
