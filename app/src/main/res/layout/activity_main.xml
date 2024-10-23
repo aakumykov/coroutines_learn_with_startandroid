@@ -17,12 +17,11 @@
         app:iconGravity="textStart" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/runFoldedCoroutinesWithJoin"
+        android:id="@+id/twoLaunchesWithJoin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="#4CAF50"
-        android:text="Вложенные корутины с .join()"
-        android:visibility="gone"
+        android:text="launch: две задачи с .join()"
         app:icon="@drawable/baseline_rocket_launch_24"
         app:iconGravity="textStart" />
 

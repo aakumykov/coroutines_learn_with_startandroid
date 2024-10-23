@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.twoLaunchesWithoutJoin.setOnClickListener { twoLaunchesWithoutJoin() }
-//        binding.runFoldedCoroutinesWithJoin.setOnClickListener { runFoldedCoroutinesWithJoin() }
+        binding.twoLaunchesWithJoin.setOnClickListener { twoLaunchesWithJoin() }
 //        binding.runParallelCoroutinesWithoutJoin.setOnClickListener { runParallelCoroutinesWithoutJoin() }
 //        binding.runParallelCoroutinesWithImmediateJoin.setOnClickListener { runParallelCoroutinesWithImmediateJoin() }
 //        binding.runParallelCoroutinesWithDeferredJoin.setOnClickListener { runParallelCoroutinesWithDeferredJoin() }
@@ -83,6 +83,40 @@ class MainActivity : AppCompatActivity() {
         log("После запуска 2 launch")
     }
     /* Вывод: launch{} без .join() позволяет запускать параллельно независимые задачи */
+
+
+    private fun twoLaunchesWithJoin() {
+        logMethodName("twoLaunchesWithJoin")
+        prepareScope()
+
+        logParentStart("scope.launch")
+        scope.launch {
+
+            log("Перед запуском 1 launch")
+            scope.launch {
+                log("Внутри 1 launch, перед работой")
+                TimeUnit.SECONDS.sleep(2)
+                log("Внутри 1 launch, после работы")
+            }.join()
+            log("После запуска 1 launch")
+
+
+            log("Перед запуском 2 launch")
+            scope.launch {
+                log("Внутри 2 launch, перед работой")
+                TimeUnit.SECONDS.sleep(3)
+                log("Внутри 2 launch, после работы")
+            }.join()
+            log("После запуска 2 launch")
+
+        }
+        logParentEnd("scope.launch")
+    }
+    /* Запуск с .join() - последовательное выполнение внутри родительского scope.launch{},
+    * тогда как этот родительский launch отрабатывает и завершается, не дожидаясь завершения
+    * дочерних launch. По сути, дочерние параллельные launch выполняются последовательно в
+    * фоновом потоке... */
+
 
     private fun onCancelButtonClicked() {
         log("onCancelButtonClicked()")
@@ -148,6 +182,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun logMethodName(name: String) {
-        log("---------- ${name}() ---------")
+        log("-------------------- ${name}() ------------------")
+    }
+
+    private fun logParentStart(text: String) {
+        log("┎---------- ${text}() ----------┒")
+    }
+
+    private fun logParentEnd(text: String) {
+        log("┖---------- ${text}() ----------┚")
     }
 }
