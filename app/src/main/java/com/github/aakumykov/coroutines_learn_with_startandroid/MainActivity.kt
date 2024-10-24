@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity() {
     * 2) CoroutineStart.LAZY + немедленный .join() = последовательная работа:
     * корутины хоть и создаются лениво, но отправляются на выполнение сразу же.
     * 3) CoroutineStart.DEFAULT + отложенный .join() = параллельная работа.
-    * 4) CoroutineStart.DEFAULT + отложенный .join() = последовательная работа: корутины
+    * 4) CoroutineStart.LAZY + отложенный .join() = последовательная работа: корутины
     * хоть и стартуют одновременно, но рабочее тело их создаётся лениво,
     * и вторая корутина создаётся-запускается после отработки первой.
     *
@@ -172,20 +172,61 @@ class MainActivity : AppCompatActivity() {
         prepareScope()
 
         scope.launch (start = CoroutineStart.DEFAULT) {
-            log("Родитель начал")
+            log("@Главный предок начал")
+
+            var child_1_1: Job? = null
+            var child_2_1: Job? = null
 
             val child1job = launch (start = CoroutineStart.DEFAULT) {
-                log("Потомок начал")
-                TimeUnit.MILLISECONDS.sleep(1000)
-                log("Потомок закончил")
+                log("Брат-1 начал")
+                TimeUnit.MILLISECONDS.sleep(2000)
+
+                child_1_1 = launch (start = CoroutineStart.DEFAULT) {
+                    log("Внук-1-1 начал")
+                    TimeUnit.MILLISECONDS.sleep(1000)
+                    log("Внук-1-1 закончил")
+                }.also {
+                    if (isChildJoinImmediate()) it.join()
+                }
+
+                /*if (isChildJoinDeferred()) {
+                    child_1_1.join()
+                }*/
+
+                log("Брат-1 закончил")
             }.also {
                 if (isChildJoinImmediate()) it.join()
             }
 
-            if (isChildJoinDeferred())
-                child1job.join()
+            val child2job = launch (start = CoroutineStart.DEFAULT) {
+                log("Брат-2 начал")
+                TimeUnit.MILLISECONDS.sleep(3000)
 
-            log("Родитель закончил")
+                child_2_1 = launch (start = CoroutineStart.DEFAULT) {
+                    log("Внук-2-1 начал")
+                    TimeUnit.MILLISECONDS.sleep(1500)
+                    log("Внук-2-1 закончил")
+                }.also {
+                    if (isChildJoinImmediate()) it.join()
+                }
+
+                /*if (isChildJoinDeferred()) {
+                    child_2_1.join()
+                }*/
+
+                log("Брат-2 закончил")
+            }.also {
+                if (isChildJoinImmediate()) it.join()
+            }
+
+            if (isChildJoinDeferred()) {
+                child1job.join()
+                child2job.join()
+                child_1_1?.join()
+                child_2_1?.join()
+            }
+
+            log("@Главный предок закончил")
         }
     }
     /**
