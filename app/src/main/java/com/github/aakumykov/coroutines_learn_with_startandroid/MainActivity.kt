@@ -171,49 +171,49 @@ class MainActivity : AppCompatActivity() {
         logMethodName("childCoroutines")
         prepareScope()
 
-        scope.launch (start = CoroutineStart.DEFAULT) {
+        val startType = coroutineStartType()
+
+        scope.launch {// start = LAZY неприменимо
             log("@Главный предок начал")
 
-            var child_1_1: Job? = null
-            var child_2_1: Job? = null
-
-            val child1job = launch (start = CoroutineStart.DEFAULT) {
+            val child1job = launch (start = startType) {
                 log("Брат-1 начал")
-                TimeUnit.MILLISECONDS.sleep(2000)
 
-                child_1_1 = launch (start = CoroutineStart.DEFAULT) {
+                val child_1_1 = launch (start = startType) {
                     log("Внук-1-1 начал")
                     TimeUnit.MILLISECONDS.sleep(1000)
                     log("Внук-1-1 закончил")
                 }.also {
-                    if (isChildJoinImmediate()) it.join()
+                    if (isChildJoinImmediate())
+                        it.join()
                 }
 
-                /*if (isChildJoinDeferred()) {
+                if (isChildJoinDeferred())
                     child_1_1.join()
-                }*/
 
+                TimeUnit.MILLISECONDS.sleep(2000)
                 log("Брат-1 закончил")
             }.also {
-                if (isChildJoinImmediate()) it.join()
+                if (isChildJoinImmediate())
+                    it.join()
             }
 
-            val child2job = launch (start = CoroutineStart.DEFAULT) {
+            val child2job = launch (start = startType) {
                 log("Брат-2 начал")
-                TimeUnit.MILLISECONDS.sleep(3000)
 
-                child_2_1 = launch (start = CoroutineStart.DEFAULT) {
+                val child_2_1 = launch (start = startType) {
                     log("Внук-2-1 начал")
-                    TimeUnit.MILLISECONDS.sleep(1500)
+                    TimeUnit.MILLISECONDS.sleep(2000)
                     log("Внук-2-1 закончил")
                 }.also {
-                    if (isChildJoinImmediate()) it.join()
+                    if (isChildJoinImmediate())
+                        it.join()
                 }
 
-                /*if (isChildJoinDeferred()) {
+                if (isChildJoinDeferred())
                     child_2_1.join()
-                }*/
 
+                TimeUnit.MILLISECONDS.sleep(3000)
                 log("Брат-2 закончил")
             }.also {
                 if (isChildJoinImmediate()) it.join()
@@ -222,22 +222,39 @@ class MainActivity : AppCompatActivity() {
             if (isChildJoinDeferred()) {
                 child1job.join()
                 child2job.join()
-                child_1_1?.join()
-                child_2_1?.join()
             }
 
             log("@Главный предок закончил")
         }
+
+        log("__ После главного предка")
     }
     /**
      * 1) Вот это да! Если вызывать join() у вложенной корутины, родительская ждёт её завершения.
      */
+
+    private fun coroutineStartType(): CoroutineStart {
+        return when(binding.coroutineStartType.checkedRadioButtonId) {
+            R.id.coroutineStartTypeLazy -> CoroutineStart.LAZY
+            else -> CoroutineStart.DEFAULT
+        }
+    }
+
+    /*private val coroutineStartType: CoroutineStart get() {
+        return when(binding.coroutineStartType.checkedRadioButtonId) {
+            R.id.coroutineStartTypeDefault -> CoroutineStart.LAZY
+            else -> CoroutineStart.DEFAULT
+        }
+    }*/
 
     private fun isChildJoinImmediate(): Boolean
         = binding.childCoroutinesJoinType.checkedRadioButtonId == R.id.childCoroutinesJoinTypeImmediate
 
     private fun isChildJoinDeferred(): Boolean
             = binding.childCoroutinesJoinType.checkedRadioButtonId == R.id.childCoroutinesJoinTypeDeferred
+
+    private fun isChildJoinNone(): Boolean
+            = R.id.childCoroutinesJoinTypeNone == binding.childCoroutinesJoinType.checkedRadioButtonId
 
 
     private fun onCancelButtonClicked() {

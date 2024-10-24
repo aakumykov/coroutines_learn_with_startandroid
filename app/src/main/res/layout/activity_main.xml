@@ -38,7 +38,7 @@
 
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/joinTypeLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
@@ -74,10 +74,44 @@
             android:text="никогда" />
     </RadioGroup>
 
+
+    <TextView
+        android:id="@+id/startTypeLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:textAlignment="center"
+        android:text="CoroutineStart:" />
+
+    <RadioGroup
+        android:id="@+id/coroutineStartType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/coroutineStartTypeDefault"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="DEFAULT"
+            android:checked="true"/>
+
+        <RadioButton
+            android:id="@+id/coroutineStartTypeLazy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="LAZY" />
+    </RadioGroup>
+
+
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/childCoroutines"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:backgroundTint="#FF7043"
         android:text="Вложенные launch"
         app:icon="@drawable/baseline_account_tree_24"
