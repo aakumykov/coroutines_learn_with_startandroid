@@ -12,66 +12,9 @@
         android:id="@+id/twoLaunchesWithoutJoin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
         android:text="launch: две задачи без .join()"
         app:icon="@drawable/baseline_rocket_launch_24"
         app:iconGravity="textStart" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Создавать корутину:" />
-
-    <RadioGroup
-        android:id="@+id/startType"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <RadioButton
-            android:id="@+id/coroutineStartDefault"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:checked="true"
-            android:text="Сразу" />
-
-        <RadioButton
-            android:id="@+id/coroutineStartLazy"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Лениво" />
-    </RadioGroup>
-
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Выполненять:" />
-
-    <RadioGroup
-        android:id="@+id/runType"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <RadioButton
-            android:id="@+id/immediateRun"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:checked="true"
-            android:text="сразу" />
-
-        <RadioButton
-            android:id="@+id/deferredRun"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="позже вместе" />
-    </RadioGroup>
-
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/twoLaunchesWithJoin"
@@ -93,6 +36,102 @@
         app:iconGravity="textEnd"
         app:iconTint="#444" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/runParallelCoroutinesWithoutJoin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#2196F3"
+        android:text="Параллельные корутины без .join()"
+        android:visibility="gone"
+        app:icon="@drawable/baseline_rocket_launch_24"
+        app:iconGravity="textEnd" />
+
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/runParallelCoroutinesWithDeferredJoin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#00BCD4"
+        android:text="Параллельные корутины с отложенным .join()"
+        android:visibility="gone"
+        app:icon="@drawable/baseline_rocket_launch_24"
+        app:iconGravity="textEnd" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/createLazyCoroutine"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#B040C3"
+            android:text="Создать ленивую"
+            android:visibility="gone"
+            app:icon="@drawable/baseline_create_24"
+            app:iconGravity="textStart" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/runLazyCoroutine"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#E2FA33"
+            android:text="Запустить"
+            android:textColor="#444"
+            android:visibility="gone"
+            app:icon="@drawable/baseline_rocket_launch_24"
+            app:iconGravity="textEnd"
+            app:iconTint="#444" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/createAsyncCoroutine"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#009688"
+            android:text="Создать async"
+            android:visibility="gone"
+            app:icon="@drawable/baseline_create_24"
+            app:iconGravity="textStart" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/runAsyncCoroutine"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#F88D3E"
+            android:text="Запустить"
+            android:visibility="gone"
+            app:icon="@drawable/baseline_rocket_launch_24"
+            app:iconGravity="textEnd" />
+
+    </LinearLayout>
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/parallelWork"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#3F51B5"
+        android:text="Параллельная работа"
+        android:visibility="gone"
+        app:icon="@drawable/baseline_rocket_launch_24"
+        app:iconGravity="textEnd" />
+
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/cancelButton"
@@ -103,6 +142,5 @@
         android:visibility="gone"
         app:icon="@drawable/outline_cancel_24"
         app:iconGravity="textStart" />
-
 
 </LinearLayout>
