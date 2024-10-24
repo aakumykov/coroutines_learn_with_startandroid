@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         binding.twoLaunchesWithoutJoin.setOnClickListener { twoLaunchesWithoutJoin() }
         binding.twoLaunchesWithJoin.setOnClickListener { twoLaunchesWithJoin() }
         binding.twoLaunchesWithAsync.setOnClickListener { twoLaunchesWithAsync() }
-//        binding.runParallelCoroutinesWithImmediateJoin.setOnClickListener { runParallelCoroutinesWithImmediateJoin() }
+        binding.childCoroutines.setOnClickListener { childCoroutines() }
 //        binding.runParallelCoroutinesWithDeferredJoin.setOnClickListener { runParallelCoroutinesWithDeferredJoin() }
 //        binding.createLazyCoroutine.setOnClickListener { createLazyCoroutine() }
 //        binding.runLazyCoroutine.setOnClickListener { runLazyCoroutine() }
@@ -159,13 +159,44 @@ class MainActivity : AppCompatActivity() {
             log("Результат 1: ${d1.await()}, Результат 2: ${d2.await()}")
         }
     }
-
     /**
      * 1) Немедленный .await() + CoroutineStart.DEFAULT = последовательная работа
      * 2) Немедленный .await() + CoroutineStart.LAZY = последовательная работа
      * 3) Отложенный .await() + CoroutineStart.DEFAULT = параллельная работа
      * 4) Отложенный .await() + CoroutineStart.LAZY = последовательная работа
      */
+
+
+    private fun childCoroutines() {
+        logMethodName("childCoroutines")
+        prepareScope()
+
+        scope.launch (start = CoroutineStart.DEFAULT) {
+            log("Родитель начал")
+
+            val child1job = launch (start = CoroutineStart.DEFAULT) {
+                log("Потомок начал")
+                TimeUnit.MILLISECONDS.sleep(1000)
+                log("Потомок закончил")
+            }.also {
+                if (isChildJoinImmediate()) it.join()
+            }
+
+            if (isChildJoinDeferred())
+                child1job.join()
+
+            log("Родитель закончил")
+        }
+    }
+    /**
+     * 1) Вот это да! Если вызывать join() у вложенной корутины, родительская ждёт её завершения.
+     */
+
+    private fun isChildJoinImmediate(): Boolean
+        = binding.childCoroutinesJoinType.checkedRadioButtonId == R.id.childCoroutinesJoinTypeImmediate
+
+    private fun isChildJoinDeferred(): Boolean
+            = binding.childCoroutinesJoinType.checkedRadioButtonId == R.id.childCoroutinesJoinTypeDeferred
 
 
     private fun onCancelButtonClicked() {

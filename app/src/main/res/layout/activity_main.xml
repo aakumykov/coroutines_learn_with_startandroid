@@ -36,6 +36,54 @@
         app:iconGravity="textEnd"
         app:iconTint="#444" />
 
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:textAlignment="center"
+        android:text="Вызывать .join() у потомка:" />
+
+    <RadioGroup
+        android:id="@+id/childCoroutinesJoinType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/childCoroutinesJoinTypeImmediate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="сразу" />
+
+        <RadioButton
+            android:id="@+id/childCoroutinesJoinTypeDeferred"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="позже" />
+
+        <RadioButton
+            android:id="@+id/childCoroutinesJoinTypeNone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="никогда" />
+    </RadioGroup>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/childCoroutines"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#FF7043"
+        android:text="Вложенные launch"
+        app:icon="@drawable/baseline_account_tree_24"
+        app:iconGravity="textStart" />
+
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/runParallelCoroutinesWithoutJoin"
         android:layout_width="match_parent"
@@ -107,17 +155,6 @@
             android:visibility="gone"
             app:icon="@drawable/baseline_create_24"
             app:iconGravity="textStart" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/runAsyncCoroutine"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:backgroundTint="#F88D3E"
-            android:text="Запустить"
-            android:visibility="gone"
-            app:icon="@drawable/baseline_rocket_launch_24"
-            app:iconGravity="textEnd" />
 
     </LinearLayout>
 
