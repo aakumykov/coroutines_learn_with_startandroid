@@ -2,19 +2,16 @@ package com.github.aakumykov.coroutines_learn_with_startandroid
 
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.github.aakumykov.coroutines_learn_with_startandroid.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlin.coroutines.cancellation.CancellationException
-import kotlin.random.Random
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -25,16 +22,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private var _scope: CoroutineScope? = null
-    private val scope: CoroutineScope get() = _scope!!
-
-    private fun prepareScope() {
-        _scope = CoroutineScope(Job())
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        _scope?.cancel(CancellationException("onDestroy()"))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,32 +32,37 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.launchButton1.setOnClickListener { onLaunch1ButtonClicked() }
+        runSample()
     }
 
-    private fun onLaunch1ButtonClicked() {
+    private var _scope: CoroutineScope? = null
+    private val scope get() = _scope!!
+
+    val handler = CoroutineExceptionHandler { coroutineContext, throwable ->
+        log("*** coroutineExceptionHandler ***")
+        Log.e(TAG, throwable.message, throwable)
+    }
+
+    private fun prepareScope() {
+        _scope = CoroutineScope(SupervisorJob() + handler)
+    }
+
+    private fun runSample() {
         prepareScope()
 
-        val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
-            log("*** coroutineExceptionHandler ***")
-            Log.e(TAG, throwable.message, throwable)
+        scope.launch {
+            repeat(5) { i ->
+//                TimeUnit.MILLISECONDS.sleep(300)
+                delay(300)
+                log("1-я корутина ... ${i} (isActive:${isActive})")
+            }
         }
 
-        scope.launch (coroutineExceptionHandler) {
-            log("Родительская корутина")
-
-            launch {
-                repeat(5) { i ->
-                    log("дочерняя-корутина-1 ... ${i+1}")
-                    delay(500)
-                }
-            }
-
-            launch {
-                delay(Random.nextLong(100, 1501))
-                log("дочерняя-корутина-2")
-                Integer.parseInt("a")
-            }
+        scope.launch {
+//            TimeUnit.MILLISECONDS.sleep(1000)
+            delay(1000)
+            log("2-я корутина")
+            Integer.parseInt("a")
         }
     }
 
@@ -76,6 +70,6 @@ class MainActivity : AppCompatActivity() {
         val thread = Thread.currentThread()
         val threadName = thread.name
         val threadHashCode = thread.hashCode()
-        Log.d(TAG, "[$threadName {$threadHashCode}] $text")
+        Log.d(TAG, text)
     }
 }
