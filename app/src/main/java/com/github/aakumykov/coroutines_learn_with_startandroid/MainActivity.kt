@@ -28,7 +28,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private var result: Any? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     private val scope get() = _scope!!
 
     val handler = CoroutineExceptionHandler { context, throwable ->
-        log("Обработчик исключений корутины: $throwable поймано в Coroutine_${context[CoroutineName]?.name}, result: ${result}")
+        log("Обработчик исключений корутины: $throwable поймано.")
 //        Log.e(TAG, throwable.message, throwable)
     }
 
@@ -74,7 +73,10 @@ class MainActivity : AppCompatActivity() {
                 if (randomBoolean)
                     continuation.resume(randomInt)
                 else
-                    continuation.resumeWithException(Exception("Исключение в синхронной части корутины (i=$randomInt)."))
+                    Exception("Исключение в синхронной части suspend-функции (num=$randomInt)").also {
+//                        continuation.resumeWithException(it)
+                        throw it
+                    }
             }
             else {
                 thread {
@@ -82,7 +84,10 @@ class MainActivity : AppCompatActivity() {
                         continuation.resume(randomInt)
                     }
                     else {
-                        continuation.resumeWithException(Exception("Исключение в асинхронной части корутины (i=$randomInt)."))
+                        Exception("Исключение в асинхронной части suspend-функции (num=$randomInt)").also {
+//                            continuation.resumeWithException(it)
+                            throw it
+                        }
                     }
                 }
             }
