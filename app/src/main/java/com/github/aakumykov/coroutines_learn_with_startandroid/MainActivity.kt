@@ -2,7 +2,6 @@ package com.github.aakumykov.coroutines_learn_with_startandroid
 
 import android.os.Bundle
 import android.util.Log
-import androidx.annotation.IntegerRes
 import androidx.appcompat.app.AppCompatActivity
 import com.github.aakumykov.coroutines_learn_with_startandroid.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -10,12 +9,15 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.thread
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
+import kotlin.random.Random
 
 
 class MainActivity : AppCompatActivity() {
@@ -57,17 +59,33 @@ class MainActivity : AppCompatActivity() {
         prepareScope()
 
         scope.launch {
-            val deferred = async {
-                Integer.parseInt("a")
-            }
+            log("Случайное число: ${getRandomNum()}")
+        }
+    }
 
-            try {
-                result = deferred.await()
-            } catch (e: Exception) {
-                Log.e(TAG, "Исключение в await: ${e.message}")
-            }
+    private val randomBoolean get() = Random.nextBoolean()
 
-            log("Код после await: результат=$result")
+    private suspend fun getRandomNum(): Int {
+        return suspendCoroutine { continuation: Continuation<Int> ->
+
+            val randomInt: Int = Random.nextInt(31)
+
+            if (randomInt <= 10) {
+                if (randomBoolean)
+                    continuation.resume(randomInt)
+                else
+                    continuation.resumeWithException(Exception("Исключение в синхронной части корутины (i=$randomInt)."))
+            }
+            else {
+                thread {
+                    if (randomInt <= 20) {
+                        continuation.resume(randomInt)
+                    }
+                    else {
+                        continuation.resumeWithException(Exception("Исключение в асинхронной части корутины (i=$randomInt)."))
+                    }
+                }
+            }
         }
     }
 
