@@ -5,7 +5,9 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.github.aakumykov.coroutines_learn_with_startandroid.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
@@ -38,31 +40,42 @@ class MainActivity : AppCompatActivity() {
     private var _scope: CoroutineScope? = null
     private val scope get() = _scope!!
 
-    val handler = CoroutineExceptionHandler { coroutineContext, throwable ->
-        log("*** coroutineExceptionHandler ***")
+    val handler = CoroutineExceptionHandler { context, throwable ->
+//        log("*** coroutineExceptionHandler ***")
+        log("$throwable поймано в Coroutine_${context[CoroutineName]?.name}")
         Log.e(TAG, throwable.message, throwable)
     }
 
     private fun prepareScope() {
-        _scope = CoroutineScope(SupervisorJob() + handler)
+        _scope = CoroutineScope(Job() + Dispatchers.IO + handler)
     }
+
+
+    fun CoroutineScope.repeatIsActive() {
+        repeat(5) {
+            TimeUnit.MILLISECONDS.sleep(300)
+            log("Coroutine_${coroutineContext[CoroutineName]?.name} isActive $isActive")
+        }
+    }
+
 
     private fun runSample() {
         prepareScope()
 
-        scope.launch {
-            repeat(5) { i ->
-//                TimeUnit.MILLISECONDS.sleep(300)
-                delay(300)
-                log("1-я корутина ... ${i} (isActive:${isActive})")
+        scope.launch(CoroutineName("1")) {
+            launch(CoroutineName("1_1")) {
+                TimeUnit.MILLISECONDS.sleep(1000)
+                log("exception")
+                Integer.parseInt("a")
             }
+            launch(CoroutineName("1_2")) { repeatIsActive() }
+            repeatIsActive()
         }
 
-        scope.launch {
-//            TimeUnit.MILLISECONDS.sleep(1000)
-            delay(1000)
-            log("2-я корутина")
-            Integer.parseInt("a")
+        scope.launch(CoroutineName("2")) {
+            launch(CoroutineName("2_1")) { repeatIsActive() }
+            launch(CoroutineName("2_2")) { repeatIsActive() }
+            repeatIsActive()
         }
     }
 
