@@ -11,11 +11,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random
 
@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.launchButton1.setOnClickListener { runSample() }
+        binding.cancelButton.setOnClickListener { cancelSample() }
 
         runSample()
     }
@@ -53,14 +54,58 @@ class MainActivity : AppCompatActivity() {
         _scope = CoroutineScope(Job() + Dispatchers.IO + handler)
     }
 
+    var job: Job? = null
 
     private fun runSample() {
         prepareScope()
 
-        scope.launch {
-            log("Случайное число: ${getRandomNum()}")
+        scope.launch (Dispatchers.IO) {
+
+            launch (Dispatchers.IO) {
+                launch (Dispatchers.IO) {
+                    var i=1;
+                    while(isActive) {
+                        log("Родительская корутина: ${i++}")
+                        TimeUnit.MILLISECONDS.sleep(500)
+                    }
+                }
+
+                launch (Dispatchers.IO) {
+                    launch (Dispatchers.IO) {
+                        var j=1;
+                        while(isActive) {
+                            log("1-я дочерняя: ${j++}")
+                            TimeUnit.MILLISECONDS.sleep(400)
+                        }
+                    }
+
+                    job = launch (Dispatchers.IO) {
+                        launch (Dispatchers.IO) {
+                            var n=1;
+                            while(isActive) {
+                                log("2-я дочерняя: ${n++}")
+                                TimeUnit.MILLISECONDS.sleep(300)
+                            }
+                        }
+
+                        launch (Dispatchers.IO) {
+                            var m=1;
+                            while(isActive) {
+                                log("3-я дочерняя: ${m++}")
+                                TimeUnit.MILLISECONDS.sleep(200)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
+
+
+    private fun cancelSample() {
+        job?.cancel(CancellationException("Отменено пользователем"))
+    }
+
 
     private val randomBoolean get() = Random.nextBoolean()
 
