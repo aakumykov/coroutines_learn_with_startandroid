@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun prepareScope() {
-        _scope = CoroutineScope(Job() + Dispatchers.IO + handler)
+        _scope = CoroutineScope(SupervisorJob() + Dispatchers.IO + handler)
     }
 
 
