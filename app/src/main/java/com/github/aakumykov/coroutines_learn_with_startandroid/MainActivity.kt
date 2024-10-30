@@ -2,15 +2,20 @@ package com.github.aakumykov.coroutines_learn_with_startandroid
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.github.aakumykov.coroutines_learn_with_startandroid.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.whileSelect
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -38,8 +43,76 @@ class MainActivity : AppCompatActivity() {
         binding.launchButton1.setOnClickListener { runSample() }
         binding.cancelButton.setOnClickListener { cancelSample() }
 
-        runSample()
+        binding.launchCancelableSuspendFunction.setOnClickListener { launchCancelableSuspendFunction() }
+        binding.launchNonCancelableSuspendFunction.setOnClickListener { launchNonCancelableSuspendFunction() }
+        binding.cancelSuspendButton.setOnClickListener { cancelSuspendButton() }
+
+//        runSample()
     }
+
+
+    private var suspendFunctionJob: Job? = null
+
+
+    private fun launchNonCancelableSuspendFunction() {
+        prepareScope()
+        suspendFunctionJob = scope.launch {
+            val res = nonCancelableSuspendFunction()
+            log("Результат неотменяемой suspend-функции: $res")
+        }
+    }
+
+    private suspend fun nonCancelableSuspendFunction(): String {
+        return suspendCoroutine<String> { continuation ->
+            var i=0
+            while(i<=100) {
+                log("nonCancelableSuspendFunction...$i")
+                i+=10
+                TimeUnit.MILLISECONDS.sleep(200)
+            }
+            continuation.resume("РНSФ")
+        }
+    }
+
+    private fun launchCancelableSuspendFunction() {
+        prepareScope()
+        suspendFunctionJob = scope.launch {
+            val res = cancelableSuspendFunction()
+            log("Результат отменяемой suspend-функции: $res")
+        }
+    }
+
+    private fun cancelSuspendButton() {
+        suspendFunctionJob?.cancel(CancellationException("Желание пользователя"))
+            ?: run { showToast("suspend-функции не запущены") }
+    }
+
+
+    private fun showToast(text: String) {
+        Toast.makeText(this,text,Toast.LENGTH_SHORT).show()
+    }
+
+
+    private suspend fun cancelableSuspendFunction(): String {
+        return suspendCancellableCoroutine<String> { cancellableContinuation ->
+
+            var isCancelled: Boolean = false
+
+            cancellableContinuation.invokeOnCancellation { t: Throwable? ->
+                log("Отменяемая suspend-функция ОТМЕНЕНА.")
+                isCancelled = true
+            }
+
+            var i=1
+            while(i<20 && !isCancelled) {
+                log("cancelableSuspendFunction...$i")
+                TimeUnit.MILLISECONDS.sleep(500)
+                i++
+            }
+            cancellableContinuation.resume("РОSФ")
+        }
+    }
+
 
     private var _scope: CoroutineScope? = null
     private val scope get() = _scope!!
@@ -51,7 +124,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun prepareScope() {
-        _scope = CoroutineScope(Job() + Dispatchers.IO + handler)
+        _scope = CoroutineScope(Job() + Dispatchers.IO)
     }
 
     var job: Job? = null
