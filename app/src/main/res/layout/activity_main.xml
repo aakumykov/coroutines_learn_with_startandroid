@@ -12,7 +12,7 @@
         android:id="@+id/launchButton1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Запустить дерево корутин"
+        android:text="Запустить 4 корутины в одном scope"
         app:icon="@drawable/baseline_rocket_launch_24"
         app:iconGravity="textStart"
         />
@@ -22,40 +22,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:text="Отменить ветвь в середине"
+        android:text="Отменить их"
         android:backgroundTint="#F06292"
         app:icon="@drawable/outline_cancel_24"
-        app:iconGravity="textEnd"
-        />
-
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/launchNonCancelableSuspendFunction"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#03A9F4"
-        android:text="Запустить неотменяемую suspend-функцию"
-        app:icon="@drawable/baseline_rocket_launch_24"
         app:iconGravity="textStart"
         />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/launchCancelableSuspendFunction"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#009688"
-        android:text="Запустить отменяемую suspend-функцию"
-        app:icon="@drawable/baseline_rocket_launch_24"
-        app:iconGravity="textStart"
-        />
-
-    <Button
-        android:id="@+id/cancelSuspendButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Отменить корутину с ней"
-        android:backgroundTint="#FF9800"
-        app:icon="@drawable/outline_cancel_24"
-        app:iconGravity="textEnd"
-        />
 </LinearLayout>
