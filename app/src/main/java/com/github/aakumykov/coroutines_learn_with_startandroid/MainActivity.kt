@@ -3,6 +3,7 @@ package com.github.aakumykov.coroutines_learn_with_startandroid
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.IntegerRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.github.aakumykov.coroutines_learn_with_startandroid.databinding.ActivityMainBinding
@@ -12,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable.isActive
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -62,30 +64,52 @@ class MainActivity : AppCompatActivity() {
     private fun runSample() {
         prepareScope()
 
-        job = scope.launch(CoroutineName("1")) {
+        job = scope.launch(CoroutineName("1")+ handler) {
 
-            launch(CoroutineName("1_1")) {
-                delay(1000)
-            }
+//            try {
+                coroutineScope {
+                    launch(CoroutineName("1_1")) {
+                        Integer.parseInt("s");
+                        delay(100)
+                        logCorName()
+                    }
 
-            launch(CoroutineName("1_2")) {
-                delay(2000)
-            }
+                    launch(CoroutineName("1_2")) {
+                        try {
+                            delay(200)
+                            logCorName()
+                        } catch (e: Exception) {
+                            logCorName(e.message)
+                        }
+                    }
+                }
+            /*} catch (e: Exception) {
+                log("Исключение в coroutineScope")
+            }*/
 
             launch(CoroutineName("1_3")) {
-                delay(3000)
+                try {
+                    delay(300)
+                    logCorName()
+                } catch (e: Exception) {
+                    logCorName(e.message)
+                }
             }
 
             launch(CoroutineName("1_4")) {
-                delay(4000)
-                logCorName()
+                try {
+                    delay(400)
+                    logCorName()
+                } catch (e: Exception) {
+                    logCorName(e.message)
+                }
             }
 
         }
     }
 
-    private fun CoroutineScope.logCorName() {
-        log("Корутина: ${coroutineContext[CoroutineName]?.name}")
+    private fun CoroutineScope.logCorName(text: String? = null) {
+        log("Корутина '${coroutineContext[CoroutineName]?.name}' ${if (null != text) ":$text" else ""}")
     }
 
 
